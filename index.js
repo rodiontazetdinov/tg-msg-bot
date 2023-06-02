@@ -3,6 +3,7 @@ console.log(process.env.token)
 
 const { token } = process.env
 const { gameOptions, againOptions } = require('./options')
+const sequelize = require('./db');
 const TelegramApi = require('node-telegram-bot-api');
 
 const bot = new TelegramApi(token, {polling: true})
@@ -17,7 +18,13 @@ const startGame = async (chatId) => {
 }
 
 
-const start = () => {
+const start = async () => {
+    try {
+        await sequelize.authenticate()
+        await sequelize.sync()
+    } catch (e) {
+        console.log('подсключение к бд сломалось', e)
+    }
     bot.setMyCommands([
         {command: '/start', description: 'terra incognito'},
         {command: '/info', description: 'возвращает юзернэйм'},
